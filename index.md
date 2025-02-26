@@ -24,7 +24,7 @@
 #### Authentication 
 
 
-The API uses HTTP Basic access authentication. Always use HTTPS to access the API.
+The API uses HTTP Basic access authentication. Always use HTTPS to access the API..
 
 You need to send HTTP Request header like this:
 ```
