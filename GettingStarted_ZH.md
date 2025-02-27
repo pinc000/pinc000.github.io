@@ -1,6 +1,6 @@
 [<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
 
-[English](GettingStarted.md)\|[Chinese](GettingStarted_ZH.md)|[Russian](GettingStarted_RU.md)
+[English ](GettingStarted.md)\|[ Chinese ](GettingStarted_ZH.md)\|[ Russian](GettingStarted_RU.md)
 
 # 使用指南
 ## 步骤 1 – 注册
