@@ -1,6 +1,8 @@
 [<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
 
-[English](index.md)\|[Chinese](index_ZH.md)|[Russian](index_RU.md)
+<div align="center">
+[English](index.md)\|[Chinese](index_ZH.md)\|[Russian](index_RU.md)
+</div>
 
 # API Reference
 
