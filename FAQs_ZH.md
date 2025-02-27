@@ -1,6 +1,6 @@
 [<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
 
-[English](FAQs.md)\|[Chinese](FAQs_ZH.md)|[Russian](FAQs_RU.md)
+[English ](FAQs.md)\|[ Chinese ](FAQs_ZH.md)\|[ Russian](FAQs_RU.md)
 
 # 常见问题解答 
 ### 如何查找相关赛事？
