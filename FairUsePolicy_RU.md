@@ -1,6 +1,6 @@
 [<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
 
-[English](FairUsePolicy.md)\|[Chinese](FairUsePolicy_ZH.md)|[Russian](FairUsePolicy_RU.md)
+[English ](FairUsePolicy.md)\|[ Chinese ](FairUsePolicy_ZH.md)\|[ Russian](FairUsePolicy_RU.md)
 
 # Политика  добросовестного использования
 Этот API защищён авторскими правами и предоставляется только нашим игрокам и партнёрам.
