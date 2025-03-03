@@ -113,8 +113,6 @@ Total Points Type -> altLineId
 
 对于您想要下注的每个赛事和投注类型，为 Get Parlay Lines 调用构建 Leg 对象，并使用POST /line/parlay 进行串关投注操作。
 
-#### POST /line/parlay **[Lines API](https://pinny888.github.io/docs?api=lines)**
-
 如果响应包含无效的 Legs，删除它们并重新提交请求。
 
 如果响应状态为“VALID”，则可以创建串关投注请求。
