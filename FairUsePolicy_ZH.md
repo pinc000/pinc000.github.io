@@ -118,7 +118,7 @@
     <td>每60秒一次</td>
   </tr>
   <tr>
-    <td>/bets (Get Bet)</td>
+    <td>/bets (获取投注)</td>
     <td>/v3</td>
     <td>每2秒一次</td>
   </tr>
