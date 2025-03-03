@@ -26,17 +26,17 @@
 
 # 如何下注单注？
 
-### 步骤 1 – 调用 Get Fixtures 操作 **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 1 – 调用 Get Fixtures 操作。**[Lines API](https://pinny888.github.io/docs?api=lines)**
 
 
 这将返回当前提供的赛事列表。要获取更新，请使用增量请求（带有since参数）。
 
-### 步骤 2 – 调用 Get Odds 操作 **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 2 – 调用 Get Odds 操作。**[Lines API](https://pinny888.github.io/docs?api=lines)**
 
 
 这将返回当前提供的赔率列表。要获取更新，请使用增量请求（带有since参数）。
 
-### 步骤 3 – 调用 Get Line操作（可选）  **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 3 – 调用 Get Line操作（可选）。**[Lines API](https://pinny888.github.io/docs?api=lines)**
 
 
 如果您需要确切的投注限制，或只对某条特定线路感兴趣，可以调用Get Line操作。请注意，Get Feed响应中的限制只是一般性限制，而Get Line响应中的限制才是确切的限制。
