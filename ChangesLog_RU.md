@@ -4,7 +4,26 @@
 
 # API Changelog
  
+## Август 2025 – остальные
 
+#### 1. УСТАРЕВАНИЕ – Устаревание нескольких свойств в v1/periods endpoint. Свойства, которые будут удалены:
+  + spreadDescription
+  + moneylineDescription
+  + totalDescription
+  + team1TotalDescription
+  + team2TotalDescription
+  + spreadShortDescription
+  + moneylineShortDescription
+  + totalShortDescription
+  + team1TotalShortDescription
+  + team2TotalShortDescription
+
+
+## Июль 2025 – Коэффициенты
+
+#### 1. Нововведение – Новая версия для получения коэффициентов – v4/odds, добавлена поддержка Buy/Sell рынков для Team Totals.
+
+#### 2. Нововведение – Новая версия для получения коэффициентов экспрессов – v4/odds/parlay, добавлена поддержка Buy/Sell рынков для Team Totals.
 
 
 
