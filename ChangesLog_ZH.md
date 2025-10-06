@@ -4,7 +4,7 @@
 
 # API Changelog
  
-## 2025 年 8 月 – 其他
+## 2025 年 8 月 – API 盘口
 
 ##### 1. <span>弃用</span> – 弃用 `v1/periods` 端点中的多个属性。即将移除的属性为以下：
   + spreadDescription
@@ -19,7 +19,7 @@
   + team2TotalShortDescription
 
 
-## 2025 年 7 月 – 赔率
+## 2025 年 7 月 – API 盘口
 
 ##### 1. <span>功能</span> – 获取赔率的新版本 – `v4/odds` 新增对“球队总得分”买入/卖出盘口的支持。
 
