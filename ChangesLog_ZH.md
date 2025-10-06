@@ -4,7 +4,26 @@
 
 # API Changelog
  
+## 2025 年 8 月 – 其他
 
+#### 1. 弃用 – 弃用 v1/periods 端点中的多个属性。即将移除的属性为以下：
+  + spreadDescription
+  + moneylineDescription
+  + totalDescription
+  + team1TotalDescription
+  + team2TotalDescription
+  + spreadShortDescription
+  + moneylineShortDescription
+  + totalShortDescription
+  + team1TotalShortDescription
+  + team2TotalShortDescription
+
+
+## 2025 年 7 月 – 赔率
+
+#### 1. 功能 – 获取赔率的新版本 – v4/odds 新增对“球队总得分”买入/卖出盘口的支持。
+
+#### 2. 功能 – 获取过关赔率的新版本 – v4/odds/parlay 新增对“球队总得分”买入/卖出盘口的支持。
 
 
 
