@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](GettingStarted.md)\|[ Chinese ](GettingStarted_ZH.md)\|[ Russian](GettingStarted_RU.md)
 
@@ -7,11 +7,11 @@
 
 Для начала вам нужно создать профиль.
 
-Обратите внимание, что для доступа к Pinnacle888 API профиль должен быть пополнен
+Обратите внимание, что для доступа к Pinc000 API профиль должен быть пополнен
 
 ### Шаг 2 – Получите список предлагаемых видов спорта и лиг.
 
-Вам нужно получить список видов спорта с помощью операции Get Sports. Если вас интересуют конкретные лиги, вы можете получить все лиги видов спорта, вызвав операцию Get Leagues. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+Вам нужно получить список видов спорта с помощью операции Get Sports. Если вас интересуют конкретные лиги, вы можете получить все лиги видов спорта, вызвав операцию Get Leagues. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 ### Шаг 3 – Сделать ставку
@@ -26,22 +26,22 @@
 
 # Как сделать ставку на одиночное событие?
 
-### Шаг 1 – Вызовите операцию Get Fixtures в **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 1 – Вызовите операцию Get Fixtures в **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 Это вернёт список событий, которые в настоящее время предлагаются. Для получения обновлений используйте delta-запросы (с параметром since).
 
-### Шаг 2 – Вызовите операцию Get Odds в **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 2 – Вызовите операцию Get Odds в **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 Это вернёт список коэффициентов, которые в настоящее время предлагаются. Для получения обновлений используйте delta-запросы (с параметром since).
 
-### Шаг 3 – Вызовите Get Line (по желанию) в  **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 3 – Вызовите Get Line (по желанию) в  **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 Вызовите операцию Get Line, если вам нужны точные лимиты ставок или если вас интересует только конкретная линия. Обратите внимание, что лимиты в ответе на Get Feed  это общие лимиты. Лимиты в ответе на Get Line  это точные лимиты.
 
-### Шаг 4 – Разместить ставку в **[Bets API](https://pinny888.github.io/docs?api=bets)**
+### Шаг 4 – Разместить ставку в **[Bets API](https://pinc000.github.io/docs/?api=bets)**
 
 
 Чтобы сделать ставку, необходимо вызвать операцию Place Bet.
@@ -101,25 +101,25 @@ Total Points Type -> altLineId
 
 # Как сделать ставку на экспресс?
 
-### Шаг 1 – Вызовите операцию Get Fixtures. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 1 – Вызовите операцию Get Fixtures. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 Это вернёт список событий, которые в настоящее время предлагаются. Для получения обновлений используйте delta-запросы (с параметром since).
 
-### Шаг 2 – Вызовите операцию Get Odds. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 2 – Вызовите операцию Get Odds. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 Это вернёт список коэффициентов, которые в настоящее время предлагаются. Для получения обновлений используйте delta-запросы (с параметром since).
 
-### Шаг 3 – Вызовите операцию Get Parlay Lines. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### Шаг 3 – Вызовите операцию Get Parlay Lines. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 Для каждого события и типа ставки, на который вы хотите сделать ставку, создайте объект Leg для вызова Get Parlay Lines и отправьте запрос с помощью
 
-#### POST /line/parlay **[Lines API](https://pinny888.github.io/docs?api=lines)**
+#### POST /line/parlay **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 Если в ответе содержатся Invalid Legs — удалите их и повторно отправьте запрос.
 
 Если в ответе статус = 'VALID' — можно создать запрос на размещение ставки на экспресс.
 
-### Шаг 4 – Вызовите операцию Place Parlay Bet. **[Bets API](https://pinny888.github.io/docs?api=bets)**
+### Шаг 4 – Вызовите операцию Place Parlay Bet. **[Bets API](https://pinc000.github.io/docs/?api=bets)**
 
 
 Создайте список legs, используя значения lineId из ответа Get Parlay Lines, и укажите roundRobbinOptions, полученные в ответе Get Parlay Lines.

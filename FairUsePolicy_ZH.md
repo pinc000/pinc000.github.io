@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FairUsePolicy.md)\|[ Chinese ](FairUsePolicy_ZH.md)\|[ Russian](FairUsePolicy_RU.md)
 
@@ -13,15 +13,15 @@
 
 ## 合理使用
 
-该API提供给玩家以便进行投注使用，不得用于数据收集、抓取或任何其他用途。API的使用必须与投注活动成比例，具体情况由Pinnacle888根据个案决定。
+该API提供给玩家以便进行投注使用，不得用于数据收集、抓取或任何其他用途。API的使用必须与投注活动成比例，具体情况由Pinc000根据个案决定。
 
-除非 Pinnacle888 明确书面同意，否则 API 的商业用途将导致您的访问权限被永久中止。
+除非 Pinc000 明确书面同意，否则 API 的商业用途将导致您的访问权限被永久中止。
 
 您不得尝试或鼓励他人：
 
 - 干扰、破坏或禁用任何API功能；
-- 未经Pinnacle888书面同意，将API用于商业目的；
-- 未经 Pinnacle888 事先书面批准，向任何第三方出售、出租、租赁、转授子许可、重新分发或联合发布 API
+- 未经Pinc000书面同意，将API用于商业目的；
+- 未经 Pinc000 事先书面批准，向任何第三方出售、出租、租赁、转授子许可、重新分发或联合发布 API
 
 ### 规则 
 
@@ -166,4 +166,4 @@
 
 
 # 免责声明
-Pinnacle888 对以任何目的使用 API 不承担任何责任，API 以“原样”和“可用”为基础提供，不提供任何明示或暗示的保证，包括但不限于适销性、适用于特定用途或不侵权的暗示保证。
+Pinc000 对以任何目的使用 API 不承担任何责任，API 以“原样”和“可用”为基础提供，不提供任何明示或暗示的保证，包括但不限于适销性、适用于特定用途或不侵权的暗示保证。

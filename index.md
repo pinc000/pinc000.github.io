@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](index.md)\|[ Chinese ](index_ZH.md)\|[ Russian](index_RU.md)
 
@@ -14,11 +14,11 @@
 
 #### The API reference documentation:
 
-**[Lines API](https://pinny888.github.io/docs?api=lines)**
+**[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
-**[Bets API](https://pinny888.github.io/docs?api=bets)**
+**[Bets API](https://pinc000.github.io/docs/?api=bets)**
 
-**[Customer API](https://pinny888.github.io/docs?api=customer)**
+**[Customer API](https://pinc000.github.io/docs/?api=customer)**
 
 
 # Overview
@@ -40,11 +40,11 @@ Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
 ```
 
 
-Please note that in order to access Pinnacle888 API, you must have a funded account.
+Please note that in order to access Pinc000 API, you must have a funded account.
 
 #### Data Formats 
 
-Pinnacle888 API supports only JSON format.
+Pinc000 API supports only JSON format.
 HTTP header `Accept` must be set:
 ```
     Accept: application/json
@@ -57,7 +57,7 @@ POST HTTP Request must have JSON body content and `Content-Type` HTTP header mus
 
 #### Compression 
 
-Pinnacle888 API supports HTTP compression. We strongly recommend using compression as it would give the best performance.
+Pinc000 API supports HTTP compression. We strongly recommend using compression as it would give the best performance.
 
 Please make sure to set the `User-Agent` HTTP header or compression might not work.
 
@@ -75,14 +75,14 @@ All place bet requests support deduplication.
 
 
 # API Status
-You can follow [Pinnacle888 status page](https://status.pinnacle888.com/) and subscribe to get the notifications on API status.  
+You can follow [Pinc000 status page](https://status.pinc000.com/) and subscribe to get the notifications on API status.  
 
 
-**[Pinnacle888 API Open API Specification](https://github.com/pinny888/api-spec/blob/main/OpenAPI)** is hosted on GitHub.
+**[Pinc000 API Open API Specification](https://github.com/pinc000/pinc000.github.io/tree/main/docs/OpenAPI)** is hosted on GitHub.
 
 
 # Disclaimer
 
- Pinnacle888 is not liable for use of the API for any purpose. The API is provided on an “as is” and “as available” basis, without warranties of any kind, either expressed or implied, including, without limitation, implied warranties of merchantability and fitness for a particular purpose or non-infringement.
+ Pinc000 is not liable for use of the API for any purpose. The API is provided on an “as is” and “as available” basis, without warranties of any kind, either expressed or implied, including, without limitation, implied warranties of merchantability and fitness for a particular purpose or non-infringement.
 
  

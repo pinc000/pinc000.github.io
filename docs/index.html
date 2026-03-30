@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Pinnacle888 API Doc</title>
+    <title>Pinc000 API Doc</title>
     <!-- needed for adaptive design -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,7 +24,7 @@
       #links_container {
           margin: 0;
           padding: 0;
-          background-color: #082c54;
+          background-color: #FFA100;
       }
       #links_container li {
           display: inline-block;
@@ -60,20 +60,24 @@
 		}
 		var param = findGetParameter("api");
 		var isTest = findGetParameter("isTest");
+        var currentPath = window.location.pathname
+          .replace(/\/index\.html$/, '')
+          .replace(/\/$/, '');
+        var docsBasePath = currentPath === '' ? '' : currentPath;
+        var specBasePath = docsBasePath + '/' + (isTest === 'true' ? 'OpenAPI/testing-branch' : 'OpenAPI');
         // list of APIS
-        var branchName = isTest === 'true' ? 'testing-branch' : 'main'; 
         var apis = [
           {
             name: 'Customer API',
-            url: 'https://raw.githubusercontent.com/Pinny888/api-spec/' + branchName + '/OpenAPI/customerapi.yaml'
+            url: specBasePath + '/customerapi.yaml'
           },
           {
             name: 'Lines API',
-            url: 'https://raw.githubusercontent.com/Pinny888/api-spec/' + branchName + '/OpenAPI/linesapi.yaml'
+            url: specBasePath + '/linesapi.yaml'
           },  
           {
             name: 'Bets API',
-            url: 'https://raw.githubusercontent.com/Pinny888/api-spec/' + branchName + '/OpenAPI/betsapi.yaml'
+            url: specBasePath + '/betsapi.yaml'
           }    
         ];
         // initially render first API

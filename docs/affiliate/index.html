@@ -41,7 +41,7 @@
 
     marked.setOptions({ renderer });
     window.addEventListener('DOMContentLoaded', async () => {
-      const response = await fetch("https://raw.githubusercontent.com/Pinny888/api-spec/refs/heads/main/OpenAPI/AffiliatesOdds.md");
+      const response = await fetch("../OpenAPI/AffiliatesOdds.md");
       const markdown = await response.text();
 
       const html = marked.parse(markdown);

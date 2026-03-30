@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](GettingStarted.md)\|[ Chinese ](GettingStarted_ZH.md)\|[ Russian](GettingStarted_RU.md)
 
@@ -7,11 +7,11 @@
 
 要开始使用，您需要创建一个账户。
 
-请注意，要访问Pinnacle888 API，账户必须有资金。
+请注意，要访问Pinc000 API，账户必须有资金。
 
 ### 步骤 2 - 获取提供的体育项目和联赛列表
 
-您需要通过Get Sports操作获取体育项目列表。如果您对特定的联赛感兴趣，可以通过调用Get Leagues操作获取所有体育联赛。 **[Lines API](https://pinny888.github.io/docs?api=lines)**
+您需要通过Get Sports操作获取体育项目列表。如果您对特定的联赛感兴趣，可以通过调用Get Leagues操作获取所有体育联赛。 **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 ### 步骤 3 - 下注
@@ -26,22 +26,22 @@
 
 # 如何下注单注？
 
-### 步骤 1 – 调用 Get Fixtures 操作。**[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 1 – 调用 Get Fixtures 操作。**[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 这将返回当前提供的赛事列表。要获取更新，请使用增量请求（带有since参数）。
 
-### 步骤 2 – 调用 Get Odds 操作。**[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 2 – 调用 Get Odds 操作。**[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 这将返回当前提供的赔率列表。要获取更新，请使用增量请求（带有since参数）。
 
-### 步骤 3 – 调用 Get Line操作（可选）。**[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 3 – 调用 Get Line操作（可选）。**[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 
 如果您需要确切的投注限制，或只对某条特定线路感兴趣，可以调用Get Line操作。请注意，Get Feed响应中的限制只是一般性限制，而Get Line响应中的限制才是确切的限制。
 
-### 步骤 4 - 下单投注API **[Bets API](https://pinny888.github.io/docs?api=bets)**
+### 步骤 4 - 下单投注API **[Bets API](https://pinc000.github.io/docs/?api=bets)**
 
 
 要下单投注，您需要调用Place Bet操作。
@@ -101,15 +101,15 @@ Total Points Type -> altLineId
 
 # 如何进行串关投注？
 
-### 步骤 1 – 调用 Get Fixtures 操作. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 1 – 调用 Get Fixtures 操作. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 此操作将返回当前提供的赛事列表。若需更新，请使用带有 since 参数的增量请求。
 
-### 步骤 2 – 调用 Get Odds 操作. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 2 – 调用 Get Odds 操作. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 此操作将返回当前提供的赔率列表。若需更新，请使用带有 since 参数的增量请求。
 
-### 步骤 3 – 调用 Get Parlay Lines 操作. **[Lines API](https://pinny888.github.io/docs?api=lines)**
+### 步骤 3 – 调用 Get Parlay Lines 操作. **[Lines API](https://pinc000.github.io/docs/?api=lines)**
 
 对于您想要下注的每个赛事和投注类型，为 Get Parlay Lines 调用构建 Leg 对象，并使用POST /line/parlay 进行串关投注操作。
 
@@ -117,7 +117,7 @@ Total Points Type -> altLineId
 
 如果响应状态为“VALID”，则可以创建串关投注请求。
 
-### 步骤 4 – 调用 Place Parlay Bet操作. **[Bets API](https://pinny888.github.io/docs?api=bets)**
+### 步骤 4 – 调用 Place Parlay Bet操作. **[Bets API](https://pinc000.github.io/docs/?api=bets)**
 
 
 使用 Get Parlay Lines 响应中的 lineId 值构造一个 Leg 列表，并指定在 Get Parlay Lines 响应中返回的 roundRobbinOptions。

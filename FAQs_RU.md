@@ -1,11 +1,11 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FAQs.md)\|[ Chinese ](FAQs_ZH.md)\|[ Russian](FAQs_RU.md)
 
 # Часто задаваемые вопросы (FAQ)
 ### Как найти соответствующие события?
 
-Можно использовать параметр parentId из запроса [Get Fixtures](https://pinny888.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) для группировки связанных событий с “parent” событием.
+Можно использовать параметр parentId из запроса [Get Fixtures](https://pinc000.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) для группировки связанных событий с “parent” событием.
 
 Некоторые факты, которые могут помочь:
 
@@ -92,7 +92,7 @@
 
 ### Когда рынок открыт для ставок?
 
-Рынок ( `moneyline` , `spreads`, `totals`,  `teamtotal` ) в периоде открыт для ставок, если в ответе [Get Odds](https://pinny888.github.io/docs/?api=lines#tag/Odds) выполняются все эти условия:
+Рынок ( `moneyline` , `spreads`, `totals`,  `teamtotal` ) в периоде открыт для ставок, если в ответе [Get Odds](https://pinc000.github.io/docs/?api=lines#tag/Odds) выполняются все эти условия:
 1. Статус периода = 1
 2. Рынок существует
 3. Cutoff периода в будущем.
@@ -128,7 +128,7 @@
 
 
 Обратите внимание, что для живых событий коэффициенты меняются довольно часто, а также изменяется статус периода.
-Из-за этих частых изменений возможно, что вы будете получать статус `NOT_EXISTS` в ответе [Get Line](https://pinny888.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) чаще, чем для pre-game событий.
+Из-за этих частых изменений возможно, что вы будете получать статус `NOT_EXISTS` в ответе [Get Line](https://pinc000.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) чаще, чем для pre-game событий.
 
 
 

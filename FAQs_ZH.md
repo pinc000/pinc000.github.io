@@ -1,11 +1,11 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FAQs.md)\|[ Chinese ](FAQs_ZH.md)\|[ Russian](FAQs_RU.md)
 
 # 常见问题解答 
 ### 如何查找相关赛事？
 
-可以使用 [Get Fixtures](https://pinny888.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) 中的 `parentId` 将相关赛事分组到“parent”赛事。
+可以使用 [Get Fixtures](https://pinc000.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) 中的 `parentId` 将相关赛事分组到“parent”赛事。
 
 以下几点可以帮到你：
 
@@ -92,7 +92,7 @@
 
 ### 盘口何时开放投注？
 
-当 [Get Odds](https://pinny888.github.io/docs/?api=lines#tag/Odds)响应中所有以下条件都成立时，某一周期的盘口（如`moneyline`、`spread`、`totals`、`teamtotal`）才开放进行投注：
+当 [Get Odds](https://pinc000.github.io/docs/?api=lines#tag/Odds)响应中所有以下条件都成立时，某一周期的盘口（如`moneyline`、`spread`、`totals`、`teamtotal`）才开放进行投注：
 1. 周期状态 = 1
 2. 盘口存在
 3. 周期的截止时间在未来。
@@ -127,7 +127,7 @@
  
 
 
-请注意，对于现场赛事，赔率和时段状态变化相当频繁。由于这些频繁变化，您在 [Get Line](https://pinny888.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) 响应中获得 `NOT_EXISTS` 状态的频率可能比赛前赛事更高。
+请注意，对于现场赛事，赔率和时段状态变化相当频繁。由于这些频繁变化，您在 [Get Line](https://pinc000.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) 响应中获得 `NOT_EXISTS` 状态的频率可能比赛前赛事更高。
 
 
 

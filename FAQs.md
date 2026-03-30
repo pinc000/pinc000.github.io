@@ -1,11 +1,11 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FAQs.md)\|[ Chinese ](FAQs_ZH.md)\|[ Russian](FAQs_RU.md)
 
 # FAQ
 ### How to find associated events?
 
-One can use `parentId` from the  [Get Fixtures](https://pinny888.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) to group associated events to the "parent" event. 
+One can use `parentId` from the  [Get Fixtures](https://pinc000.github.io/docs/?api=lines#tag/Fixtures/operation/Fixtures_V3_Get) to group associated events to the "parent" event. 
 
 A few facts that can help:
 
@@ -93,7 +93,7 @@ Please note that in the next version of `/fixtures`, the `rotNum` property will 
 
 ### When is the market open for betting? 
 
-A market ( `moneyline` , `spreads`, `totals`,  `teamtotal` ) in a period is open for betting if in [Get Odds](https://pinny888.github.io/docs/?api=lines#tag/Odds) response all these is true:
+A market ( `moneyline` , `spreads`, `totals`,  `teamtotal` ) in a period is open for betting if in [Get Odds](https://pinc000.github.io/docs/?api=lines#tag/Odds) response all these is true:
 1. Period `status` = 1
 2. Market exists 
 3. Period has `cutoff` is in the future.
@@ -129,7 +129,7 @@ Example: When the `moneyline` market is not offered, the whole object will be mi
 
 
 Please note that for live events, odds change quite frequently as well as the period `status`. 
-Due to these frequent changes, it’s possible that you will be getting status `NOT_EXISTS` in the [Get Line](https://pinny888.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) response more often than for the pre-game events.
+Due to these frequent changes, it’s possible that you will be getting status `NOT_EXISTS` in the [Get Line](https://pinc000.github.io/docs/?api=lines#tag/Line/operation/Line_Straight_V2_Get) response more often than for the pre-game events.
 
 
 

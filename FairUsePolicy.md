@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinny888.github.io)
+[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FairUsePolicy.md)\|[ Chinese ](FairUsePolicy_ZH.md)\|[ Russian](FairUsePolicy_RU.md)
 
@@ -13,15 +13,15 @@ We may at any time, and at our sole discretion, modify this Fair Use Policy, wit
 
 ## Fair usage
 
-The API is provided to players to facilitate wagering and may not be used for data gathering, scrapping or any other purpose. The API usage must be proportionate to wagering activities as determined on a case by case basis by Pinnacle888.
+The API is provided to players to facilitate wagering and may not be used for data gathering, scrapping or any other purpose. The API usage must be proportionate to wagering activities as determined on a case by case basis by Pinc000.
 
-Unless explicitly agreed in writing by Pinnacle888, the commercial usage of the API will lead to the permanent suspension of your access.
+Unless explicitly agreed in writing by Pinc000, the commercial usage of the API will lead to the permanent suspension of your access.
 
 You will not attempt or encourage others to:
 
 - To interfere with, disrupt, or disable any API features;
-- Use the API for commercial purposes without a written agreement with Pinnacle888;
-- Sell, rent, lease, sublicense, redistribute, or syndicate the API to any third party without prior written approval from Pinnacle888.
+- Use the API for commercial purposes without a written agreement with Pinc000;
+- Sell, rent, lease, sublicense, redistribute, or syndicate the API to any third party without prior written approval from Pinc000.
 
 ### Rules 
 
@@ -167,4 +167,4 @@ You will not attempt or encourage others to:
 
 
 # Disclaimer
-Pinnacle888 is not liable for use of the API for any purpose, the API is provided on an “as is” and “as available” basis, without warranties of any kind, either express or implied, including, without limitation, implied warranties of merchantability, fitness for a particular purpose or non-infringement.
+Pinc000 is not liable for use of the API for any purpose, the API is provided on an “as is” and “as available” basis, without warranties of any kind, either express or implied, including, without limitation, implied warranties of merchantability, fitness for a particular purpose or non-infringement.
