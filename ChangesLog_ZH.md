@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" style="background-color: transparent;">](https://pinc000.github.io)
+[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" width="100" height="100" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](ChangesLog.md)\|[ Chinese ](ChangesLog_ZH.md)\|[ Russian](ChangesLog_RU.md)
 
@@ -32,6 +32,5 @@
 ##### 1. <span>功能</span> – 获取赔率的新版本 – `v4/odds` 新增对“球队总得分”买入/卖出盘口的支持。
 
 ##### 2. <span>功能</span> – 获取过关赔率的新版本 – `v4/odds/parlay` 新增对“球队总得分”买入/卖出盘口的支持。
-
 
 

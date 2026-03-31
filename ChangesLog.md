@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" style="background-color: transparent;">](https://pinc000.github.io)
+[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" width="100" height="100" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](ChangesLog.md)\|[ Chinese ](ChangesLog_ZH.md)\|[ Russian](ChangesLog_RU.md)
 
@@ -31,7 +31,6 @@
 
 ##### 1. <span>FEATURE</span> – New version for getting odds – `v4/odds` to add support for Buy/Sell markets for Team Totals.
 ##### 2. <span>FEATURE</span> – New version for getting parlay odds – `v4/odds/parlay` to add support for Buy/Sell markets for Team Totals.
-
 
 
 

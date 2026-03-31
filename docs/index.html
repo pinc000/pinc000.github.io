@@ -80,11 +80,20 @@
             url: specBasePath + '/betsapi.yaml'
           }    
         ];
+        var redocOptions = {
+          theme: {
+            logo: {
+              maxHeight: '100px',
+              maxWidth: '100px',
+              gutter: '8px'
+            }
+          }
+        };
         // initially render first API
-        Redoc.init(apis[param === 'lines' ? 1 : (param === 'bets' ? 2 : 0) ].url);
+        Redoc.init(apis[param === 'lines' ? 1 : (param === 'bets' ? 2 : 0) ].url, redocOptions);
         function onClick() {
           var url = this.getAttribute('data-link');
-          Redoc.init(url);
+          Redoc.init(url, redocOptions);
         }
         // dynamically building navigation items
         var $list = document.getElementById('links_container');

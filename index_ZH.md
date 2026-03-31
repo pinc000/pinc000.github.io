@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" style="background-color: transparent;">](https://pinc000.github.io)
+[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" width="100" height="100" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](index.md)\|[ Chinese ](index_ZH.md)\|[ Russian](index_RU.md)
 
