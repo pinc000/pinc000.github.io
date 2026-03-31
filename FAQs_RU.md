@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
+[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](FAQs.md)\|[ Chinese ](FAQs_ZH.md)\|[ Russian](FAQs_RU.md)
 
@@ -309,4 +309,3 @@ maxRisk = maxVolume
 ###  Какова минимальная сумма ставки, разрешенная при использовании API?
 
 Минимальная сумма ставки за одно пари при использовании нашего API составляет 10USD (или эквивалент в валюте вашего счета). Это требование обеспечивает согласованность и справедливое использование для всей автоматизированной активности по ставкам. Пожалуйста, убедитесь, что ваша интеграция API соответствует такому лимиту, так как ставки ниже минимума могут быть отклонены или не обработаны.
-

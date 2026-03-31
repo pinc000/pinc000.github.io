@@ -1,4 +1,4 @@
-[<img _ngcontent-c2="" src="" style="background-color: transparent;">](https://pinc000.github.io)
+[<img _ngcontent-c2="" src="https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png" style="background-color: transparent;">](https://pinc000.github.io)
 
 [English ](ChangesLog.md)\|[ Chinese ](ChangesLog_ZH.md)\|[ Russian](ChangesLog_RU.md)
 
@@ -32,7 +32,6 @@
 ##### 1. <span>Нововведение</span> – Новая версия для получения коэффициентов – `v4/odds`, добавлена поддержка Buy/Sell рынков для Team Totals.
 
 ##### 2. <span>Нововведение</span> – Новая версия для получения коэффициентов экспрессов – `v4/odds/parlay`, добавлена поддержка Buy/Sell рынков для Team Totals.
-
 
 
 

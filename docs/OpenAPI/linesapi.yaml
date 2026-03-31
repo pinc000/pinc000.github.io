@@ -15,7 +15,7 @@ info:
     
     `Authorization: Basic U03MyOT23YbzMDc6d3c3O1DQ1`
   x-logo:
-    url: ''
+    url: 'https://raw.githubusercontent.com/pinc000/pinc000.github.io/main/pinc000.png'
 host: api.pinc000.com
 schemes:
   - https
