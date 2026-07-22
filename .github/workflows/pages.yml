@@ -1,0 +1,54 @@
+name: Deploy API docs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [openapi-updated]
+  schedule:
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Refresh OpenAPI spec from the live API
+        run: |
+          if curl -fsS --retry 3 https://api.pinc000.com/openapi.json -o openapi.json.tmp \
+            && python3 -c "import json; json.load(open('openapi.json.tmp'))"; then
+            mv openapi.json.tmp openapi.json
+          else
+            echo "fetch failed, using committed copy"
+            rm -f openapi.json.tmp
+          fi
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/docs
+          cp index.html openapi.json 404.html .nojekyll pinc000.png _site/
+          cp docs/index.html _site/docs/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
