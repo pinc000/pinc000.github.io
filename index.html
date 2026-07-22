@@ -6,32 +6,199 @@
     <title>Pinc000 · Pinnacle API</title>
     <meta name="description" content="Interactive API reference for the Pinc000 Pinnacle API." />
     <link rel="icon" type="image/png" href="./pinc000.png" />
-    <!-- Pinned version; bump deliberately after checking the changelog -->
-    <script src="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.24/web-components.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.24/styles.min.css" />
     <style>
-      html,
       body {
         margin: 0;
         padding: 0;
-        height: 100vh;
       }
-      elements-api {
-        display: block;
-        height: 100%;
+
+      /* Hide the "API docs by Redocly" attribution. Verified empirically on
+         redoc@2.5.3: it renders as <a href="https://redocly.com/redoc/"> at
+         the bottom of the sidebar menu; !important is required because
+         Redoc's styled-components sheet (display: flex) is injected after
+         this one and would win the cascade. */
+      a[href*="redocly.com/redoc"] {
+        display: none !important;
+      }
+
+      /* Hide the big "Pinnacle API (1.0.0)" heading. Verified empirically on
+         redoc@2.5.3: the info section renders as <div class="api-info"> with
+         the title as its only <h1>; the description is a sibling of the h1,
+         so it stays visible. */
+      .api-info h1 {
+        display: none;
+      }
+
+      /* Credential form, mounted into the #pinc-try marker that the backend
+         embeds in info.description. Styled to sit in Redoc's typography. */
+      #pinc-try .pinc-row {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 4px 0 8px;
+      }
+      #pinc-try input {
+        padding: 7px 10px;
+        border: 1px solid #d5d5d5;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        width: 150px;
+      }
+      #pinc-try input:focus {
+        outline: none;
+        border-color: #ff5500;
+      }
+      #pinc-try button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        background: #ff5500;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      #pinc-try button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      #pinc-try .pinc-status {
+        font-size: 14px;
+      }
+      #pinc-try .pinc-status.ok {
+        color: #1d8348;
+      }
+      #pinc-try .pinc-status.err {
+        color: #c0392b;
       }
     </style>
   </head>
 
   <body>
-    <!-- Spec is same-origin, refreshed at deploy time by the Pages workflow.
-         No tryItCorsProxy: try-it calls go straight to api.pinc000.com, which
-         allows this origin via CORS. -->
-    <elements-api
-      apiDescriptionUrl="./openapi.json"
-      router="hash"
-      layout="sidebar"
-      hideExport="true"
-    ></elements-api>
+    <div id="redoc"></div>
+
+    <!-- Pin exactly 2.5.3: the credential injection below relies on this
+         version's DOM (init callback timing, .api-info, attribution href). -->
+    <script src="https://cdn.jsdelivr.net/npm/redoc@2.5.3/bundles/redoc.standalone.js"></script>
+    <script>
+      "use strict";
+
+      var container = document.getElementById("redoc");
+
+      Redoc.init(
+        "./openapi.json",
+        {
+          hideDownloadButtons: true,
+          expandResponses: "200",
+          hideSingleRequestSampleTab: true,
+          theme: {
+            logo: { maxHeight: "40px", gutter: "16px" },
+            colors: { primary: { main: "#ff5500" } }, // dominant orange of pinc000.png
+          },
+        },
+        container,
+        initCredInjection
+      );
+
+      /* Credential injection: the spec's code samples contain the literal
+         tokens {{PINC_USER}} / {{PINC_PASS}}; we substitute the visitor's
+         credentials in-place so every sample is copy-paste runnable. */
+      function initCredInjection() {
+        var USER_KEY = "pincUser"; // username may persist across sessions...
+        var PASS_KEY = "pincPass"; // ...but the password only lives in sessionStorage
+
+        function render(tpl) {
+          return tpl
+            .replaceAll("{{PINC_USER}}", localStorage.getItem(USER_KEY) || "USERNAME")
+            .replaceAll("{{PINC_PASS}}", sessionStorage.getItem(PASS_KEY) || "PASSWORD");
+        }
+
+        /* Re-render every templated text node from its cached original.
+           Verified empirically on redoc@2.5.3: x-codeSamples render as a bare
+           <pre> of Prism token <span>s (no <code> element), with each token
+           inside a single text node — so we substitute per text node, which
+           preserves the syntax highlighting. The cached template (an expando
+           on the node) makes every re-application idempotent, and nodeValue
+           writes are characterData mutations, invisible to the childList
+           observer below — no feedback loop is possible. */
+        function applyCreds() {
+          var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+          for (var node; (node = walker.nextNode()); ) {
+            var tpl = node.pincTpl;
+            if (tpl === undefined) {
+              if (node.nodeValue.indexOf("{{PINC_") === -1) continue;
+              tpl = node.pincTpl = node.nodeValue;
+            }
+            var out = render(tpl);
+            if (node.nodeValue !== out) node.nodeValue = out;
+          }
+        }
+
+        // Redoc re-mounts sample panels on tab switches; re-substitute then.
+        new MutationObserver(applyCreds).observe(container, { childList: true, subtree: true });
+        applyCreds();
+
+        var host = document.getElementById("pinc-try");
+        if (!host) return; // older spec without the marker: substitution still works
+
+        host.innerHTML =
+          '<div class="pinc-row">' +
+          '<input class="pinc-user" type="text" placeholder="Username" autocomplete="username">' +
+          '<input class="pinc-pass" type="password" placeholder="Password" autocomplete="current-password">' +
+          '<button type="button" class="pinc-check">Check</button>' +
+          '<span class="pinc-status"></span>' +
+          "</div>";
+
+        var user = host.querySelector(".pinc-user");
+        var pass = host.querySelector(".pinc-pass");
+        var check = host.querySelector(".pinc-check");
+        var status = host.querySelector(".pinc-status");
+
+        user.value = localStorage.getItem(USER_KEY) || "";
+        pass.value = sessionStorage.getItem(PASS_KEY) || "";
+
+        user.addEventListener("input", function () {
+          localStorage.setItem(USER_KEY, user.value);
+          applyCreds();
+        });
+        pass.addEventListener("input", function () {
+          sessionStorage.setItem(PASS_KEY, pass.value);
+          applyCreds();
+        });
+
+        function setStatus(cls, text) {
+          status.className = "pinc-status " + cls;
+          status.textContent = text;
+        }
+
+        check.addEventListener("click", function () {
+          check.disabled = true;
+          setStatus("", "…");
+          fetch("https://api.pinc000.com/balance", {
+            headers: { Authorization: "Basic " + btoa(user.value + ":" + pass.value) },
+          })
+            .then(function (res) {
+              if (res.status === 401) return setStatus("err", "✗ Invalid credentials");
+              if (!res.ok) return setStatus("err", "✗ API error (HTTP " + res.status + ")");
+              return res.json().then(function (b) {
+                var extra =
+                  b && b.availableBalance != null
+                    ? " — " + b.availableBalance + (b.currency ? " " + b.currency : "")
+                    : "";
+                setStatus("ok", "✓ Connected" + extra);
+              });
+            })
+            .catch(function () {
+              setStatus("err", "✗ Could not reach the API");
+            })
+            .finally(function () {
+              check.disabled = false;
+            });
+        });
+      }
+    </script>
   </body>
 </html>
