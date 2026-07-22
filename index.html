@@ -74,6 +74,71 @@
       #pinc-try .pinc-status.err {
         color: #c0392b;
       }
+
+      /* "Run" button, injected next to Redoc's Copy button in every curl
+         sample's button bar (see injectRunButtons for the anchor). The bar
+         itself carries opacity: .7, so the resting tint is lightened. */
+      .pinc-run {
+        padding: 2px 10px;
+        border: 0;
+        background: transparent;
+        color: #ffa07a;
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      .pinc-run:hover {
+        color: #ff5500;
+      }
+
+      /* Live-response panel rendered under a sample after Run. Dark to match
+         Redoc's right column; the accent stays the pinc000 orange. */
+      .pinc-resp {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-left: 3px solid #ff5500;
+        border-radius: 4px;
+        background: #11171a;
+        font-family: Courier, monospace;
+        font-size: 13px;
+      }
+      .pinc-resp-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        color: #8be9a8;
+      }
+      .pinc-resp-head.neutral {
+        color: #d5dee5;
+      }
+      .pinc-resp-head.err {
+        color: #ff8f80;
+        background: rgba(255, 60, 40, 0.08);
+      }
+      .pinc-resp-close {
+        background: none;
+        border: 0;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0 2px;
+      }
+      .pinc-resp-close:hover {
+        color: #fff;
+      }
+      .pinc-resp pre {
+        margin: 0;
+        padding: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        max-height: 300px;
+        overflow: auto;
+        color: #fff;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
     </style>
   </head>
 
@@ -95,7 +160,13 @@
           expandResponses: "200",
           hideSingleRequestSampleTab: true,
           theme: {
-            logo: { maxHeight: "40px", gutter: "16px" },
+            /* Logo-size bug, diagnosed empirically on redoc@2.5.3: Redoc
+               applies `gutter` as padding on the <img> with border-box
+               sizing, and maxHeight limits the BORDER box — so the old
+               `maxHeight: 40px, gutter: 16px` painted the 400×400 pinc000.png
+               at just 8×8px. maxHeight must be image size + 2×gutter:
+               84 − 2×14 = a 56×56 visible logo with comfortable padding. */
+            logo: { maxHeight: "84px", gutter: "14px" },
             colors: { primary: { main: "#ff5500" } }, // dominant orange of pinc000.png
           },
         },
@@ -137,9 +208,234 @@
           }
         }
 
-        // Redoc re-mounts sample panels on tab switches; re-substitute then.
-        new MutationObserver(applyCreds).observe(container, { childList: true, subtree: true });
+        // Redoc re-mounts sample panels on tab switches; re-substitute and
+        // re-inject Run buttons then (both passes are idempotent, so the
+        // mutations caused by injection itself settle after one extra cycle).
+        new MutationObserver(function () {
+          applyCreds();
+          injectRunButtons();
+        }).observe(container, { childList: true, subtree: true });
         applyCreds();
+        injectRunButtons();
+
+        /* Fix Redoc's Copy button: it copies the ORIGINAL spec string (via a
+           hidden <textarea> + execCommand), not our substituted DOM text.
+           Verified empirically on redoc@2.5.3: during that copy event the
+           event target is the hidden TEXTAREA, window.getSelection() DOES
+           return its raw template text, and e.clipboardData is available —
+           so a capture-phase document listener can rewrite the payload.
+           Manual selections of visible (already substituted) text contain no
+           tokens and pass through untouched. */
+        document.addEventListener(
+          "copy",
+          function (e) {
+            var text = String(window.getSelection());
+            if (text.indexOf("{{PINC_") === -1) {
+              // Defensive fallback: some engines exclude textarea content
+              // from the document selection; read the field directly.
+              var ae = document.activeElement;
+              if (ae && ae.tagName === "TEXTAREA" && typeof ae.value === "string")
+                text = ae.value.substring(ae.selectionStart, ae.selectionEnd);
+            }
+            if (text.indexOf("{{PINC_") !== -1 && e.clipboardData) {
+              e.preventDefault();
+              e.clipboardData.setData("text/plain", render(text));
+            }
+          },
+          true
+        );
+
+        /* --- Run buttons: execute a curl sample live, show the response --- */
+
+        /* Minimal POSIX-ish shell tokenizer: '…'/"…" quoting, backslash
+           escapes and line continuations, and # comments (only at the start
+           of a word, like a real shell). Enough for the x-codeSamples curl
+           strings, which are plain single-command invocations. */
+        function shellTokens(src) {
+          var toks = [];
+          var cur = null; // null = between words; '' = an (possibly empty) open word
+          var q = null; // active quote char, or null
+          for (var i = 0; i < src.length; i++) {
+            var c = src.charAt(i);
+            if (q) {
+              if (c === q) q = null;
+              else if (q === '"' && c === "\\" && '"\\$`'.indexOf(src.charAt(i + 1)) !== -1)
+                cur += src.charAt(++i);
+              else cur += c;
+            } else if (c === "\\") {
+              if (src.charAt(i + 1) === "\n") i++; // line continuation
+              else cur = (cur === null ? "" : cur) + src.charAt(++i);
+            } else if (c === "'" || c === '"') {
+              q = c;
+              if (cur === null) cur = "";
+            } else if (c === "#" && cur === null) {
+              while (i < src.length && src.charAt(i) !== "\n") i++; // comment
+            } else if (" \t\r\n".indexOf(c) !== -1) {
+              if (cur !== null) toks.push(cur);
+              cur = null;
+            } else {
+              cur = (cur === null ? "" : cur) + c;
+            }
+          }
+          if (cur !== null) toks.push(cur);
+          return toks;
+        }
+
+        /* Parse one curl invocation into {method, url, headers, body}.
+           Credentials flags (-u) are deliberately ignored — Run always
+           authenticates with the current credential fields. Returns null for
+           non-curl text (e.g. Redoc's JSON payload samples). Exposed on
+           window (pincParseCurl) so it can be unit-tested in-page. */
+        function parseCurl(sample) {
+          var toks = shellTokens(sample);
+          var start = toks.indexOf("curl");
+          if (start === -1) return null;
+          var req = { method: null, url: null, headers: {}, body: null };
+          var FLAGS = {
+            "-X": "method",
+            "--request": "method",
+            "-H": "header",
+            "--header": "header",
+            "-d": "body",
+            "--data": "body",
+            "--data-raw": "body",
+            "--data-binary": "body",
+            "--url": "url",
+            "-u": "skip",
+            "--user": "skip",
+          };
+          for (var i = start + 1; i < toks.length; i++) {
+            var kind = FLAGS[toks[i]];
+            if (kind) {
+              var v = toks[++i];
+              if (v === undefined) continue;
+              if (kind === "method") req.method = v.toUpperCase();
+              else if (kind === "url") req.url = v;
+              else if (kind === "body") req.body = v;
+              else if (kind === "header") {
+                var ci = v.indexOf(":");
+                if (ci !== -1) req.headers[v.slice(0, ci).trim()] = v.slice(ci + 1).trim();
+              }
+            } else if (toks[i].charAt(0) === "-") {
+              // boolean flag (-s, --compressed, …): no argument to consume
+            } else if (req.url === null) {
+              req.url = toks[i];
+            }
+          }
+          if (req.url === null) return null;
+          if (req.method === null) req.method = req.body === null ? "GET" : "POST";
+          return req;
+        }
+        window.pincParseCurl = parseCurl;
+
+        // fetch() over HTTP/2 reports an empty statusText; fill in the common ones.
+        var STATUS_TEXT = {
+          200: "OK", 201: "Created", 202: "Accepted", 204: "No Content",
+          400: "Bad Request", 401: "Unauthorized", 402: "Payment Required",
+          403: "Forbidden", 404: "Not Found", 409: "Conflict",
+          422: "Unprocessable Entity", 429: "Too Many Requests",
+          500: "Internal Server Error", 502: "Bad Gateway", 503: "Service Unavailable",
+        };
+
+        function runSample(pre) {
+          var wrap = pre.parentElement;
+          var old = wrap.querySelector(".pinc-resp");
+          if (old) old.remove();
+          var panel = document.createElement("div");
+          panel.className = "pinc-resp";
+          wrap.appendChild(panel);
+
+          function show(cls, head, body) {
+            panel.innerHTML = "";
+            var headEl = document.createElement("div");
+            headEl.className = "pinc-resp-head" + (cls ? " " + cls : "");
+            var label = document.createElement("span");
+            label.textContent = head;
+            var close = document.createElement("button");
+            close.type = "button";
+            close.className = "pinc-resp-close";
+            close.textContent = "×";
+            close.addEventListener("click", function () {
+              panel.remove();
+            });
+            headEl.appendChild(label);
+            headEl.appendChild(close);
+            panel.appendChild(headEl);
+            if (body != null && body !== "") {
+              var bodyEl = document.createElement("pre");
+              bodyEl.textContent = body;
+              panel.appendChild(bodyEl);
+            }
+          }
+
+          var u = localStorage.getItem(USER_KEY) || "";
+          var p = sessionStorage.getItem(PASS_KEY) || "";
+          if (!u || !p) {
+            show("err", "Enter your credentials at the top first", null);
+            return;
+          }
+          var req = parseCurl(pre.textContent);
+          if (!req) {
+            show("err", "Could not parse this sample", null);
+            return;
+          }
+          var headers = {};
+          for (var k in req.headers)
+            if (k.toLowerCase() !== "authorization") headers[k] = req.headers[k];
+          headers["Authorization"] = "Basic " + btoa(u + ":" + p);
+
+          show("neutral", "Running…", null);
+          var t0 = performance.now();
+          fetch(req.url, { method: req.method, headers: headers, body: req.body })
+            .then(function (res) {
+              var ms = Math.round(performance.now() - t0);
+              return res.text().then(function (text) {
+                var body = text;
+                try {
+                  body = JSON.stringify(JSON.parse(text), null, 2);
+                } catch (ignore) {}
+                var reason = res.statusText || STATUS_TEXT[res.status] || "";
+                show(
+                  res.status >= 400 ? "err" : "",
+                  res.status + (reason ? " " + reason : "") + " · " + ms + " ms",
+                  body
+                );
+              });
+            })
+            .catch(function () {
+              show("err", "Network error — could not reach the API", null);
+            });
+        }
+
+        /* Inject Run next to Redoc's Copy button. Anchor (verified
+           empirically on redoc@2.5.3): every code sample renders as
+             <div> <div>(button bar: <button>Copy</button>)</div> <pre>…</pre> </div>
+           i.e. the sample <pre>'s previousElementSibling is the button bar.
+           The sc-* classnames are styled-components hashes, so we match this
+           structure instead of classes. Only <pre>s that parse as curl get a
+           button (Redoc's JSON payload samples also have Copy bars, and our
+           own response panels contain <pre>s — both are skipped). Idempotent
+           via the .pinc-run check, so the MutationObserver can re-run it
+           after Redoc remounts a tab panel. */
+        function injectRunButtons() {
+          var pres = container.getElementsByTagName("pre");
+          for (var i = 0; i < pres.length; i++) {
+            var pre = pres[i];
+            var bar = pre.previousElementSibling;
+            if (!bar || bar.tagName !== "DIV" || bar.querySelector(".pinc-run")) continue;
+            var isCopyBar = false;
+            var btns = bar.getElementsByTagName("button");
+            for (var j = 0; j < btns.length; j++)
+              if (btns[j].textContent.trim() === "Copy") isCopyBar = true;
+            if (!isCopyBar || !parseCurl(pre.textContent)) continue;
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "pinc-run";
+            btn.textContent = "Run";
+            btn.addEventListener("click", runSample.bind(null, pre));
+            bar.appendChild(btn);
+          }
+        }
 
         var host = document.getElementById("pinc-try");
         if (!host) return; // older spec without the marker: substitution still works
