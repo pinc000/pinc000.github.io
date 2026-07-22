@@ -1,7 +1,7 @@
 # pinc000.github.io
 
 Interactive API reference for the Pinc000 Pinnacle API, rendered with
-[Scalar](https://github.com/scalar/scalar) and published via GitHub Pages.
+[Stoplight Elements](https://github.com/scalar/scalar) and published via GitHub Pages.
 
 The site is a single page (`index.html`) that renders `openapi.json`. The
 committed `openapi.json` is only a fallback: on every deploy, the Pages

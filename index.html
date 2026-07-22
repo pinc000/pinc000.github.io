@@ -6,27 +6,32 @@
     <title>Pinc000 · Pinnacle API</title>
     <meta name="description" content="Interactive API reference for the Pinc000 Pinnacle API." />
     <link rel="icon" type="image/png" href="./pinc000.png" />
+    <!-- Pinned version; bump deliberately after checking the changelog -->
+    <script src="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.24/web-components.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.24/styles.min.css" />
     <style>
       html,
       body {
         margin: 0;
         padding: 0;
+        height: 100vh;
+      }
+      elements-api {
+        display: block;
+        height: 100%;
       }
     </style>
   </head>
 
   <body>
-    <div id="app"></div>
-
-    <!-- Load Scalar -->
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-
-    <!-- Initialize the API Reference -->
-    <script>
-      Scalar.createApiReference('#app', {
-        // Same-origin spec, refreshed at deploy time by the Pages workflow
-        url: './openapi.json',
-      })
-    </script>
+    <!-- Spec is same-origin, refreshed at deploy time by the Pages workflow.
+         No tryItCorsProxy: try-it calls go straight to api.pinc000.com, which
+         allows this origin via CORS. -->
+    <elements-api
+      apiDescriptionUrl="./openapi.json"
+      router="hash"
+      layout="sidebar"
+      hideExport="true"
+    ></elements-api>
   </body>
 </html>
