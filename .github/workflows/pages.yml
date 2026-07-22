@@ -28,6 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # A dispatch from reverse-api CI races the Heroku auto-deploy of the same
+      # push; wait so the fetch below sees the new release, not the old one.
+      - name: Wait for the API deploy to finish
+        if: github.event_name == 'repository_dispatch'
+        run: sleep 240
+
       - name: Refresh OpenAPI spec from the live API
         run: |
           if curl -fsS --retry 3 https://api.pinc000.com/openapi.json -o openapi.json.tmp \
