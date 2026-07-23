@@ -107,20 +107,40 @@
         user-select: none;
       }
 
-      /* Nudge: ripple a ring around the sample's Copy button when the user
-         hand-selects sample text, to teach that copying goes through the
-         button. */
-      @keyframes pinc-ring {
-        0% {
-          box-shadow: 0 0 0 0 rgba(255, 85, 0, 0.75);
-        }
-        100% {
-          box-shadow: 0 0 0 12px rgba(255, 85, 0, 0);
+      /* Nudge: a short orange stripe snakes around the Copy button's border
+         (two laps) when the user clicks/selects sample text by hand — the
+         button is the copy path that restores the real credentials. Drawn on
+         an ::after ring (conic-gradient masked to the border) whose start
+         angle is animated via a registered custom property. */
+      @property --pinc-a {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+      }
+      @keyframes pinc-snake {
+        to {
+          --pinc-a: 720deg;
         }
       }
       .pinc-nudge {
-        animation: pinc-ring 0.65s ease-out 3;
-        border-radius: 4px;
+        position: relative;
+      }
+      .pinc-nudge::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 6px;
+        padding: 2px;
+        background: conic-gradient(
+          from var(--pinc-a),
+          #ff5500 0 55deg,
+          transparent 55deg 360deg
+        );
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        animation: pinc-snake 2.2s linear 1;
+        pointer-events: none;
       }
 
       /* Live-response panel rendered under a sample after Run. Dark to match
@@ -319,7 +339,7 @@
         applyCreds();
         injectRunButtons();
 
-        /* Fix copying — two paths, both must yield the REAL credentials:
+        /* Fix copying — three paths, all must yield the REAL credentials:
            1. Redoc's Copy button copies the ORIGINAL spec string via a
               hidden <textarea> + execCommand; its text still carries the raw
               {{PINC_*}} tokens (applyCreds skips TEXTAREA text nodes exactly
@@ -340,6 +360,12 @@
           });
           for (var i = 0; i < junks.length; i++)
             out = out.replaceAll(junks[i], junkToReal[junks[i]]);
+          // 3. A hand-made selection SKIPS the unselectable junk spans and
+          //    arrives here as `-u ':'` (the quotes and colon are plain
+          //    text). Refill it so even a manual copy is a working command.
+          var u = localStorage.getItem(USER_KEY) || "";
+          var p = sessionStorage.getItem(PASS_KEY) || "";
+          if (u && p) out = out.replaceAll("-u ':'", "-u '" + u + ":" + p + "'");
           return out;
         }
         document.addEventListener(
@@ -362,38 +388,49 @@
           true
         );
 
-        /* When a user hand-selects text inside a credentialed sample, pulse
-           a ring around that sample's Copy button: the blurred junk is
-           unselectable, so a manual copy silently drops the credentials —
-           the button is the copy path that restores the real values. */
+        /* When a user clicks (or click-drags a selection) inside a
+           credentialed sample, run the snake stripe around that sample's
+           Copy button — teaching that the button is the copy path that
+           restores the real values. (Manual copies still work: the copy
+           listener refills the skipped credentials.) */
+        function nudgeCopyFor(pre) {
+          var bar = pre.previousElementSibling;
+          if (!bar || bar.tagName !== "DIV") return;
+          var btns = bar.getElementsByTagName("button");
+          for (var i = 0; i < btns.length; i++) {
+            if (btns[i].textContent.trim().indexOf("Cop") !== 0) continue; // Copy / Copied
+            var btn = btns[i];
+            if (!btn.classList.contains("pinc-nudge")) {
+              btn.classList.add("pinc-nudge");
+              btn.addEventListener(
+                "animationend",
+                function () {
+                  btn.classList.remove("pinc-nudge");
+                },
+                { once: true }
+              );
+            }
+            break;
+          }
+        }
+        function credPreFrom(node) {
+          var el = node && node.nodeType === 1 ? node : node && node.parentElement;
+          var pre = el && el.closest ? el.closest("pre") : null;
+          return pre && container.contains(pre) && pre.querySelector(".pinc-sub") ? pre : null;
+        }
+        container.addEventListener("pointerdown", function (e) {
+          var pre = credPreFrom(e.target);
+          if (pre) nudgeCopyFor(pre);
+        });
+        // Keyboard/other selections that never see a pointerdown.
         var nudgeTimer = null;
         document.addEventListener("selectionchange", function () {
           clearTimeout(nudgeTimer);
           nudgeTimer = setTimeout(function () {
             var sel = document.getSelection();
             if (!sel || sel.isCollapsed || !sel.anchorNode) return;
-            var el =
-              sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
-            var pre = el && el.closest ? el.closest("pre") : null;
-            if (!pre || !container.contains(pre) || !pre.querySelector(".pinc-sub")) return;
-            var bar = pre.previousElementSibling;
-            if (!bar || bar.tagName !== "DIV") return;
-            var btns = bar.getElementsByTagName("button");
-            for (var i = 0; i < btns.length; i++) {
-              if (btns[i].textContent.trim().indexOf("Cop") !== 0) continue; // Copy / Copied
-              var btn = btns[i];
-              if (!btn.classList.contains("pinc-nudge")) {
-                btn.classList.add("pinc-nudge");
-                btn.addEventListener(
-                  "animationend",
-                  function () {
-                    btn.classList.remove("pinc-nudge");
-                  },
-                  { once: true }
-                );
-              }
-              break;
-            }
+            var pre = credPreFrom(sel.anchorNode);
+            if (pre) nudgeCopyFor(pre);
           }, 200);
         });
 
