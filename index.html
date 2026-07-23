@@ -91,6 +91,15 @@
         color: #ff5500;
       }
 
+      /* Blur for the junk credentials shown in code samples. The span only
+         ever contains random [a-zA-Z0-9] junk — the real value is never in
+         the DOM — so the blur is presentation, not the protection. Syntax
+         color is inherited from the Prism token span the junk sits inside. */
+      .pinc-blur {
+        filter: blur(3.5px);
+        letter-spacing: 1px;
+      }
+
       /* Live-response panel rendered under a sample after Run. Dark to match
          Redoc's right column; the accent stays the pinc000 orange. */
       .pinc-resp {
@@ -176,7 +185,8 @@
 
       /* Credential injection: the spec's code samples contain the literal
          tokens {{PINC_USER}} / {{PINC_PASS}}; we substitute the visitor's
-         credentials in-place so every sample is copy-paste runnable. */
+         credentials in-place so every sample is copy-paste runnable — shown
+         on screen only as blurred junk, restored to the real values on copy. */
       function initCredInjection() {
         var USER_KEY = "pincUser"; // username may persist across sessions...
         var PASS_KEY = "pincPass"; // ...but the password only lives in sessionStorage
@@ -187,25 +197,93 @@
             .replaceAll("{{PINC_PASS}}", sessionStorage.getItem(PASS_KEY) || "PASSWORD");
         }
 
-        /* Re-render every templated text node from its cached original.
-           Verified empirically on redoc@2.5.3: x-codeSamples render as a bare
-           <pre> of Prism token <span>s (no <code> element), with each token
-           inside a single text node — so we substitute per text node, which
-           preserves the syntax highlighting. The cached template (an expando
-           on the node) makes every re-application idempotent, and nodeValue
-           writes are characterData mutations, invisible to the childList
-           observer below — no feedback loop is possible. */
+        /* Safe blur: a real credential must NEVER appear in the DOM. Each
+           entered value is displayed as JUNK — a random string of the same
+           length — inside a blurred span. The junk is cached per real value,
+           so every applyCreds pass renders byte-identical DOM and the
+           MutationObserver below settles instead of looping. Junk is drawn
+           from [a-zA-Z0-9] only, so it cannot break out of the quoted
+           context when parseCurl tokenizes pre.textContent. */
+        var JUNK_CHARS =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var junkCache = Object.create(null); // real value -> stable junk
+        var junkToReal = Object.create(null); // junk -> real, for the copy rewrite
+
+        function junkFor(real) {
+          var junk = junkCache[real];
+          if (junk === undefined) {
+            junk = "";
+            for (var i = 0; i < real.length; i++)
+              junk += JUNK_CHARS.charAt(Math.floor(Math.random() * JUNK_CHARS.length));
+            junkCache[real] = junk;
+            junkToReal[junk] = real;
+          }
+          return junk;
+        }
+
+        /* Substitute credentials into the code samples. Verified empirically
+           on redoc@2.5.3: x-codeSamples render as a bare <pre> of Prism token
+           <span>s (no <code> element), with each token inside a single text
+           node. On first touch each templated text node is REPLACED by a
+           <span class="pinc-sub"> carrying the original template as an
+           expando; each pass then re-renders that span's children from the
+           template — plain text parts as text nodes, credential tokens as
+           the readable USERNAME/PASSWORD placeholders while the fields are
+           empty, or as blurred-junk spans once real values are entered.
+           Sitting inside the Prism token span, the children inherit its
+           syntax color. A per-span signature (the current credential pair —
+           junk is a pure function of it) short-circuits unchanged
+           re-renders, so the childList MutationObserver below settles after
+           one extra cycle instead of feeding back. TEXTAREA text nodes are
+           left untouched: Redoc's hidden copy textarea must keep the raw
+           template for the copy listener. */
+        function renderSub(span, sig, u, p) {
+          if (span.pincSig === sig) return; // unchanged → zero mutations
+          span.pincSig = sig;
+          span.textContent = "";
+          var parts = span.pincTpl.split(/(\{\{PINC_USER\}\}|\{\{PINC_PASS\}\})/);
+          for (var i = 0; i < parts.length; i++) {
+            var real = null;
+            var placeholder = null;
+            if (parts[i] === "{{PINC_USER}}") {
+              real = u;
+              placeholder = "USERNAME";
+            } else if (parts[i] === "{{PINC_PASS}}") {
+              real = p;
+              placeholder = "PASSWORD";
+            }
+            if (real === null) {
+              if (parts[i]) span.appendChild(document.createTextNode(parts[i]));
+            } else if (real === "") {
+              span.appendChild(document.createTextNode(placeholder));
+            } else {
+              var blur = document.createElement("span");
+              blur.className = "pinc-blur";
+              blur.textContent = junkFor(real); // junk only — never the real value
+              span.appendChild(blur);
+            }
+          }
+        }
+
         function applyCreds() {
+          var toConvert = [];
           var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
           for (var node; (node = walker.nextNode()); ) {
-            var tpl = node.pincTpl;
-            if (tpl === undefined) {
-              if (node.nodeValue.indexOf("{{PINC_") === -1) continue;
-              tpl = node.pincTpl = node.nodeValue;
-            }
-            var out = render(tpl);
-            if (node.nodeValue !== out) node.nodeValue = out;
+            if (node.nodeValue.indexOf("{{PINC_") === -1) continue;
+            if (node.parentNode && node.parentNode.tagName === "TEXTAREA") continue;
+            toConvert.push(node); // convert after the walk, not mid-walk
           }
+          for (var i = 0; i < toConvert.length; i++) {
+            var sub = document.createElement("span");
+            sub.className = "pinc-sub";
+            sub.pincTpl = toConvert[i].nodeValue;
+            toConvert[i].parentNode.replaceChild(sub, toConvert[i]);
+          }
+          var u = localStorage.getItem(USER_KEY) || "";
+          var p = sessionStorage.getItem(PASS_KEY) || "";
+          var sig = u + "\u0000" /* NUL cannot appear in an input value */ + p;
+          var subs = container.getElementsByClassName("pinc-sub");
+          for (var s = 0; s < subs.length; s++) renderSub(subs[s], sig, u, p);
         }
 
         // Redoc re-mounts sample panels on tab switches; re-substitute and
@@ -218,14 +296,29 @@
         applyCreds();
         injectRunButtons();
 
-        /* Fix Redoc's Copy button: it copies the ORIGINAL spec string (via a
-           hidden <textarea> + execCommand), not our substituted DOM text.
-           Verified empirically on redoc@2.5.3: during that copy event the
-           event target is the hidden TEXTAREA, window.getSelection() DOES
-           return its raw template text, and e.clipboardData is available —
-           so a capture-phase document listener can rewrite the payload.
-           Manual selections of visible (already substituted) text contain no
-           tokens and pass through untouched. */
+        /* Fix copying — two paths, both must yield the REAL credentials:
+           1. Redoc's Copy button copies the ORIGINAL spec string via a
+              hidden <textarea> + execCommand; its text still carries the raw
+              {{PINC_*}} tokens (applyCreds skips TEXTAREA text nodes exactly
+              for this), so tokens are substituted here.
+           2. A manual selection of visible sample text now contains the
+              blurred JUNK strings; those are mapped back to the real values.
+           Verified empirically on redoc@2.5.3: during the Copy-button copy
+           the event target is the hidden TEXTAREA, window.getSelection()
+           DOES return its raw template text, and e.clipboardData is
+           available — so a capture-phase document listener can rewrite the
+           payload. Text with neither tokens nor junk passes through. */
+        function rewriteForCopy(text) {
+          var out = render(text);
+          // Longest junk first, so a shorter junk that happens to be a
+          // substring of a longer one cannot corrupt it mid-replacement.
+          var junks = Object.keys(junkToReal).sort(function (a, b) {
+            return b.length - a.length;
+          });
+          for (var i = 0; i < junks.length; i++)
+            out = out.replaceAll(junks[i], junkToReal[junks[i]]);
+          return out;
+        }
         document.addEventListener(
           "copy",
           function (e) {
@@ -237,9 +330,10 @@
               if (ae && ae.tagName === "TEXTAREA" && typeof ae.value === "string")
                 text = ae.value.substring(ae.selectionStart, ae.selectionEnd);
             }
-            if (text.indexOf("{{PINC_") !== -1 && e.clipboardData) {
+            var out = rewriteForCopy(text);
+            if (out !== text && e.clipboardData) {
               e.preventDefault();
-              e.clipboardData.setData("text/plain", render(text));
+              e.clipboardData.setData("text/plain", out);
             }
           },
           true
@@ -391,13 +485,25 @@
               var ms = Math.round(performance.now() - t0);
               return res.text().then(function (text) {
                 var body = text;
+                var dataAge = "";
                 try {
-                  body = JSON.stringify(JSON.parse(text), null, 2);
+                  var parsed = JSON.parse(text);
+                  body = JSON.stringify(parsed, null, 2);
+                  /* Polling responses carry `last` — the epoch-ms timestamp
+                     of when the data was current. The age is computed
+                     against the CLIENT clock, so clock skew shifts it. */
+                  if (parsed && typeof parsed.last === "number" && parsed.last > 1e12) {
+                    var age = Date.now() - parsed.last;
+                    dataAge =
+                      " · data " +
+                      (age < 1000 ? age + " ms" : (age / 1000).toFixed(1) + " s") +
+                      " old";
+                  }
                 } catch (ignore) {}
                 var reason = res.statusText || STATUS_TEXT[res.status] || "";
                 show(
                   res.status >= 400 ? "err" : "",
-                  res.status + (reason ? " " + reason : "") + " · " + ms + " ms",
+                  res.status + (reason ? " " + reason : "") + " · " + ms + " ms" + dataAge,
                   body
                 );
               });
