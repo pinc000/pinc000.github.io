@@ -502,24 +502,28 @@
                   var parsed = JSON.parse(text);
                   body = JSON.stringify(parsed, null, 2);
                   /* Polling responses carry `last` — the epoch-ms timestamp
-                     of when the data was current. Age it against the SERVER
-                     clock from the response's Date header (the API exposes it
-                     via Access-Control-Expose-Headers), so a wrong client
-                     clock cannot skew the number. Date has 1 s resolution and
-                     truncates down, so a fresh `last` can land up to ~1 s
-                     "in the future" — clamp to 0. Only if the header is
-                     unreadable fall back to the client clock, where a clock
-                     running behind yields a negative age — report that as
-                     skew instead of a nonsense negative. */
+                     of when the data was current. Freshness comes from the
+                     SERVER, never the client clock: prefer X-Data-Age-Ms
+                     (the API's own monotonic measurement, ms precision —
+                     the same number its telemetry logs). Fall back to the
+                     Date header, which only has 1 s resolution truncated
+                     down — live data is usually younger than that, so
+                     sub-second results just read "< 1 s". The client clock
+                     is the last resort, where a clock running behind yields
+                     a negative age — report that as skew instead of a
+                     nonsense negative. */
                   if (parsed && typeof parsed.last === "number" && parsed.last > 1e12) {
                     var fmt = function (ms) {
-                      return ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(1) + " s";
+                      return ms < 1000 ? Math.round(ms) + " ms" : (ms / 1000).toFixed(1) + " s";
                     };
+                    var serverAge = parseFloat(res.headers.get("X-Data-Age-Ms"));
                     var serverNow = Date.parse(res.headers.get("Date") || "");
                     var age;
-                    if (!isNaN(serverNow)) {
-                      age = Math.max(0, serverNow - parsed.last);
-                      dataAge = " · data " + fmt(age) + " old";
+                    if (!isNaN(serverAge)) {
+                      dataAge = " · data " + fmt(serverAge) + " old";
+                    } else if (!isNaN(serverNow)) {
+                      age = serverNow - parsed.last;
+                      dataAge = age < 1000 ? " · data < 1 s old" : " · data " + fmt(age) + " old";
                     } else {
                       age = Date.now() - parsed.last;
                       dataAge =
