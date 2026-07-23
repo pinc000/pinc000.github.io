@@ -100,47 +100,10 @@
         letter-spacing: 1px;
         /* Unselectable: a hand-made selection would otherwise copy the junk
            (or a fragment of it, which the copy rewrite cannot map back).
-           Skipping it entirely makes the broken copy obvious, and the nudge
-           below points at the Copy button — the path that restores the real
-           credentials. */
+           The copy listener refills the skipped credentials, so a manual
+           copy still yields a working command. */
         -webkit-user-select: none;
         user-select: none;
-      }
-
-      /* Nudge: a short orange stripe snakes around the Copy button's border
-         (two laps) when the user clicks/selects sample text by hand — the
-         button is the copy path that restores the real credentials. Drawn on
-         an ::after ring (conic-gradient masked to the border) whose start
-         angle is animated via a registered custom property. */
-      @property --pinc-a {
-        syntax: "<angle>";
-        initial-value: 0deg;
-        inherits: false;
-      }
-      @keyframes pinc-snake {
-        to {
-          --pinc-a: 720deg;
-        }
-      }
-      .pinc-nudge {
-        position: relative;
-      }
-      .pinc-nudge::after {
-        content: "";
-        position: absolute;
-        inset: -3px;
-        border-radius: 6px;
-        padding: 2px;
-        background: conic-gradient(
-          from var(--pinc-a),
-          #ff5500 0 55deg,
-          transparent 55deg 360deg
-        );
-        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        animation: pinc-snake 2.2s linear 1;
-        pointer-events: none;
       }
 
       /* Live-response panel rendered under a sample after Run. Dark to match
@@ -388,52 +351,6 @@
           true
         );
 
-        /* When a user clicks (or click-drags a selection) inside a
-           credentialed sample, run the snake stripe around that sample's
-           Copy button — teaching that the button is the copy path that
-           restores the real values. (Manual copies still work: the copy
-           listener refills the skipped credentials.) */
-        function nudgeCopyFor(pre) {
-          var bar = pre.previousElementSibling;
-          if (!bar || bar.tagName !== "DIV") return;
-          var btns = bar.getElementsByTagName("button");
-          for (var i = 0; i < btns.length; i++) {
-            if (btns[i].textContent.trim().indexOf("Cop") !== 0) continue; // Copy / Copied
-            var btn = btns[i];
-            if (!btn.classList.contains("pinc-nudge")) {
-              btn.classList.add("pinc-nudge");
-              btn.addEventListener(
-                "animationend",
-                function () {
-                  btn.classList.remove("pinc-nudge");
-                },
-                { once: true }
-              );
-            }
-            break;
-          }
-        }
-        function credPreFrom(node) {
-          var el = node && node.nodeType === 1 ? node : node && node.parentElement;
-          var pre = el && el.closest ? el.closest("pre") : null;
-          return pre && container.contains(pre) && pre.querySelector(".pinc-sub") ? pre : null;
-        }
-        container.addEventListener("pointerdown", function (e) {
-          var pre = credPreFrom(e.target);
-          if (pre) nudgeCopyFor(pre);
-        });
-        // Keyboard/other selections that never see a pointerdown.
-        var nudgeTimer = null;
-        document.addEventListener("selectionchange", function () {
-          clearTimeout(nudgeTimer);
-          nudgeTimer = setTimeout(function () {
-            var sel = document.getSelection();
-            if (!sel || sel.isCollapsed || !sel.anchorNode) return;
-            var pre = credPreFrom(sel.anchorNode);
-            if (pre) nudgeCopyFor(pre);
-          }, 200);
-        });
-
         /* --- Run buttons: execute a curl sample live, show the response --- */
 
         /* Minimal POSIX-ish shell tokenizer: '…'/"…" quoting, backslash
@@ -585,19 +502,31 @@
                   var parsed = JSON.parse(text);
                   body = JSON.stringify(parsed, null, 2);
                   /* Polling responses carry `last` — the epoch-ms timestamp
-                     of when the data was current. The age mixes the server's
-                     clock (last) with the CLIENT clock (now), so a client
-                     clock running behind yields a negative age — report that
-                     as skew instead of a nonsense negative. */
+                     of when the data was current. Age it against the SERVER
+                     clock from the response's Date header (the API exposes it
+                     via Access-Control-Expose-Headers), so a wrong client
+                     clock cannot skew the number. Date has 1 s resolution and
+                     truncates down, so a fresh `last` can land up to ~1 s
+                     "in the future" — clamp to 0. Only if the header is
+                     unreadable fall back to the client clock, where a clock
+                     running behind yields a negative age — report that as
+                     skew instead of a nonsense negative. */
                   if (parsed && typeof parsed.last === "number" && parsed.last > 1e12) {
-                    var age = Date.now() - parsed.last;
                     var fmt = function (ms) {
                       return ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(1) + " s";
                     };
-                    dataAge =
-                      age >= 0
-                        ? " · data " + fmt(age) + " old"
-                        : " · data fresh (client clock ~" + fmt(-age) + " behind)";
+                    var serverNow = Date.parse(res.headers.get("Date") || "");
+                    var age;
+                    if (!isNaN(serverNow)) {
+                      age = Math.max(0, serverNow - parsed.last);
+                      dataAge = " · data " + fmt(age) + " old";
+                    } else {
+                      age = Date.now() - parsed.last;
+                      dataAge =
+                        age >= 0
+                          ? " · data " + fmt(age) + " old"
+                          : " · data fresh (client clock ~" + fmt(-age) + " behind)";
+                    }
                   }
                 } catch (ignore) {}
                 var reason = res.statusText || STATUS_TEXT[res.status] || "";
