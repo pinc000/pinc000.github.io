@@ -585,14 +585,19 @@
                   var parsed = JSON.parse(text);
                   body = JSON.stringify(parsed, null, 2);
                   /* Polling responses carry `last` — the epoch-ms timestamp
-                     of when the data was current. The age is computed
-                     against the CLIENT clock, so clock skew shifts it. */
+                     of when the data was current. The age mixes the server's
+                     clock (last) with the CLIENT clock (now), so a client
+                     clock running behind yields a negative age — report that
+                     as skew instead of a nonsense negative. */
                   if (parsed && typeof parsed.last === "number" && parsed.last > 1e12) {
                     var age = Date.now() - parsed.last;
+                    var fmt = function (ms) {
+                      return ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(1) + " s";
+                    };
                     dataAge =
-                      " · data " +
-                      (age < 1000 ? age + " ms" : (age / 1000).toFixed(1) + " s") +
-                      " old";
+                      age >= 0
+                        ? " · data " + fmt(age) + " old"
+                        : " · data fresh (client clock ~" + fmt(-age) + " behind)";
                   }
                 } catch (ignore) {}
                 var reason = res.statusText || STATUS_TEXT[res.status] || "";
