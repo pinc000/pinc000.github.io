@@ -34,20 +34,29 @@ jobs:
         if: github.event_name == 'repository_dispatch'
         run: sleep 240
 
-      - name: Refresh OpenAPI spec from the live API
+      # Each environment's spec must self-describe (servers[0].url is what the
+      # page's samples and playground target), so beyond valid JSON the guard
+      # checks the fetched spec advertises the URL we asked it from — a stage
+      # backend still serving prod URLs falls back to the committed copy
+      # instead of publishing a stage page that hits prod.
+      - name: Refresh OpenAPI specs from the live APIs
         run: |
-          if curl -fsS --retry 3 https://api.pinc000.com/openapi.json -o openapi.json.tmp \
-            && python3 -c "import json; json.load(open('openapi.json.tmp'))"; then
-            mv openapi.json.tmp openapi.json
-          else
-            echo "fetch failed, using committed copy"
-            rm -f openapi.json.tmp
-          fi
+          refresh() { # <file> <base-url>
+            if curl -fsS --retry 3 "$2/openapi.json" -o "$1.tmp" \
+              && python3 -c "import json,sys; assert json.load(open('$1.tmp'))['servers'][0]['url'] == '$2'"; then
+              mv "$1.tmp" "$1"
+            else
+              echo "$1: fetch failed or spec does not advertise $2, using committed copy"
+              rm -f "$1.tmp"
+            fi
+          }
+          refresh openapi.json https://api.pinc000.com
+          refresh openapi-stage.json https://api-stage.pinc000.com
 
       - name: Assemble site
         run: |
           mkdir -p _site/docs
-          cp index.html openapi.json 404.html .nojekyll pinc000.png _site/
+          cp index.html openapi.json openapi-stage.json 404.html .nojekyll pinc000.png _site/
           cp docs/index.html _site/docs/
 
       - name: Upload Pages artifact
