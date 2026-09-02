@@ -75,6 +75,42 @@
         color: #c0392b;
       }
 
+      /* Environment switcher (Production / Stage), rendered above the
+         credential form inside the same #pinc-try marker. */
+      #pinc-try .pinc-env {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 2px 0 10px;
+        font-size: 14px;
+      }
+      #pinc-try .pinc-env-label {
+        color: #666;
+      }
+      #pinc-try .pinc-env-opt {
+        padding: 4px 12px;
+        border: 1px solid #d5d5d5;
+        border-radius: 999px;
+        text-decoration: none;
+        color: #333;
+      }
+      #pinc-try .pinc-env-opt:hover {
+        border-color: #ff5500;
+        color: #ff5500;
+      }
+      #pinc-try .pinc-env-opt.active {
+        background: #ff5500;
+        border-color: #ff5500;
+        color: #fff;
+        font-weight: 600;
+        cursor: default;
+      }
+      #pinc-try .pinc-env-note {
+        margin: -4px 0 10px;
+        font-size: 13px;
+        color: #8a6d1a;
+      }
+
       /* "Run" button, injected next to Redoc's Copy button in every curl
          sample's button bar (see injectRunButtons for the anchor). The bar
          itself carries opacity: .7, so the resting tint is lightened. */
@@ -168,8 +204,19 @@
 
       var container = document.getElementById("redoc");
 
+      /* Environment: the default page documents production; ?env=stage renders
+         the STAGE spec (openapi-stage.json, refreshed by the Pages workflow
+         from api-stage.pinc000.com) — same page, same playground, but every
+         sample and the Run/Check calls target stage. Each spec already carries
+         its own base URL in servers[0] and the curl samples, so no client-side
+         URL rewriting happens here. */
+      var IS_STAGE = new URLSearchParams(location.search).get("env") === "stage";
+      var SPEC_FILE = IS_STAGE ? "./openapi-stage.json" : "./openapi.json";
+      var API_BASE = IS_STAGE ? "https://api-stage.pinc000.com" : "https://api.pinc000.com";
+      if (IS_STAGE) document.title = "Pinc000 · Pinnacle API · Stage";
+
       Redoc.init(
-        "./openapi.json",
+        SPEC_FILE,
         {
           hideDownloadButtons: true,
           expandResponses: "200",
@@ -194,8 +241,11 @@
          credentials in-place so every sample is copy-paste runnable — shown
          on screen only as blurred junk, restored to the real values on copy. */
       function initCredInjection() {
-        var USER_KEY = "pincUser"; // username may persist across sessions...
-        var PASS_KEY = "pincPass"; // ...but the password only lives in sessionStorage
+        // Stage and production have separate user databases, so credentials
+        // are stored per environment (the unsuffixed keys stay the prod ones
+        // existing visitors already have saved).
+        var USER_KEY = IS_STAGE ? "pincUserStage" : "pincUser"; // username may persist across sessions...
+        var PASS_KEY = IS_STAGE ? "pincPassStage" : "pincPass"; // ...but the password only lives in sessionStorage
 
         function render(tpl) {
           return tpl
@@ -584,12 +634,30 @@
         if (!host) return; // older spec without the marker: substitution still works
 
         host.innerHTML =
+          '<div class="pinc-env">' +
+          '<span class="pinc-env-label">Environment</span>' +
+          '<a class="pinc-env-opt' + (IS_STAGE ? "" : " active") + '" href="./">Production</a>' +
+          '<a class="pinc-env-opt' + (IS_STAGE ? " active" : "") + '" href="./?env=stage">Stage</a>' +
+          "</div>" +
+          (IS_STAGE
+            ? '<div class="pinc-env-note">Stage environment — every sample, Run and Check targets ' +
+              "api-stage.pinc000.com; stage accounts are separate from production.</div>"
+            : "") +
           '<div class="pinc-row">' +
           '<input class="pinc-user" type="text" placeholder="Username" autocomplete="username">' +
           '<input class="pinc-pass" type="password" placeholder="Password" autocomplete="current-password">' +
           '<button type="button" class="pinc-check">Check</button>' +
           '<span class="pinc-status"></span>' +
           "</div>";
+
+        // Switching environments keeps the current deep link (Redoc's #hash),
+        // so the same operation stays on screen on the other side.
+        var envOpts = host.getElementsByClassName("pinc-env-opt");
+        for (var eo = 0; eo < envOpts.length; eo++)
+          envOpts[eo].addEventListener("click", function (e) {
+            e.preventDefault();
+            location.href = this.getAttribute("href") + location.hash;
+          });
 
         var user = host.querySelector(".pinc-user");
         var pass = host.querySelector(".pinc-pass");
@@ -616,7 +684,7 @@
         check.addEventListener("click", function () {
           check.disabled = true;
           setStatus("", "…");
-          fetch("https://api.pinc000.com/balance", {
+          fetch(API_BASE + "/balance", {
             headers: { Authorization: "Basic " + btoa(user.value + ":" + pass.value) },
           })
             .then(function (res) {

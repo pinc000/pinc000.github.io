@@ -1,13 +1,23 @@
 # pinc000.github.io
 
 Interactive API reference for the Pinc000 Pinnacle API, rendered with
-[Stoplight Elements](https://github.com/stoplightio/elements) and published via GitHub Pages.
+[Redoc](https://github.com/Redocly/redoc) and published via GitHub Pages.
 
-The site is a single page (`index.html`) that renders `openapi.json`. The
-committed `openapi.json` is only a fallback: on every deploy, the Pages
-workflow (`.github/workflows/pages.yml`) re-fetches the current spec from
-<https://api.pinc000.com/openapi.json> and publishes that instead. If the
-fetch fails or returns invalid JSON, the committed copy is used.
+The site is a single page (`index.html`) that renders `openapi.json` —
+production docs by default, and the stage environment at
+[`/?env=stage`](https://pinc000.github.io/?env=stage) (same page, rendering
+`openapi-stage.json`; an in-page switcher sits above the credential form).
+Each spec's `servers[0]` and curl samples carry that environment's base URL,
+so the try-it playground always runs against the environment being viewed.
+Credentials are stored per environment — stage and production accounts are
+separate.
+
+The committed `openapi.json` / `openapi-stage.json` are only fallbacks: on
+every deploy, the Pages workflow (`.github/workflows/pages.yml`) re-fetches
+the current specs from <https://api.pinc000.com/openapi.json> and
+<https://api-stage.pinc000.com/openapi.json> and publishes those instead. If a
+fetch fails, returns invalid JSON, or the spec does not advertise its own
+environment's URL in `servers[0]`, that environment's committed copy is used.
 
 ## Triggering a rebuild
 
