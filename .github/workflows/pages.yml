@@ -25,39 +25,40 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout the site source
         uses: actions/checkout@v4
+        with:
+          repository: pinc000/reverse-api
+          ssh-key: ${{ secrets.DOCS_SOURCE_KEY }}
 
-      # A dispatch from reverse-api CI races the Heroku auto-deploy of the same
-      # push; wait so the fetch below sees the new release, not the old one.
+      # A dispatch arrives together with a deploy of the same push; wait so
+      # the fetches below see the new release, not the old one.
       - name: Wait for the API deploy to finish
         if: github.event_name == 'repository_dispatch'
         run: sleep 240
 
-      # Each environment's spec must self-describe (servers[0].url is what the
-      # page's samples and playground target), so beyond valid JSON the guard
-      # checks the fetched spec advertises the URL we asked it from — a stage
-      # backend still serving prod URLs falls back to the committed copy
-      # instead of publishing a stage page that hits prod.
+      # Each page renders its own folder's openapi.json. The committed copies
+      # are only fallbacks: refresh from the live APIs, accepting a fetched
+      # spec only if it advertises the URL it was fetched from in servers[0].
       - name: Refresh OpenAPI specs from the live APIs
         run: |
           refresh() { # <file> <base-url>
             if curl -fsS --retry 3 "$2/openapi.json" -o "$1.tmp" \
-              && python3 -c "import json,sys; assert json.load(open('$1.tmp'))['servers'][0]['url'] == '$2'"; then
+              && python3 -c "import json; assert json.load(open('$1.tmp'))['servers'][0]['url'] == '$2'"; then
               mv "$1.tmp" "$1"
             else
               echo "$1: fetch failed or spec does not advertise $2, using committed copy"
               rm -f "$1.tmp"
             fi
           }
-          refresh openapi.json https://api.pinc000.com
-          refresh openapi-stage.json https://api-stage.pinc000.com
+          refresh docs/openapi.json https://api.pinc000.com
+          refresh docs/stage/openapi.json https://api-stage.pinc000.com
 
       - name: Assemble site
         run: |
-          mkdir -p _site/docs
-          cp index.html openapi.json openapi-stage.json 404.html .nojekyll pinc000.png _site/
-          cp docs/index.html _site/docs/
+          cp -r docs _site
+          rm -f _site/README.md
+          touch _site/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
